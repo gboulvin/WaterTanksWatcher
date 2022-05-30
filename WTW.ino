@@ -34,6 +34,8 @@ const int profondeur_max2=215; //Profondeur de la grande citerne en cm
 const int distance_haut2=40; //distance entre le capteur et le niveau maximum
 const unsigned long timeout = 25000UL;
 const float sound_speed=340.0/1000;
+int pourcentage1old=100; //Stockage de la valeur précédente (historique)
+int pourcentage2old=100; //Stockage de la valeur précédente (historique)
 
 void setup() {
   
@@ -107,11 +109,7 @@ void reconnexion_mqtt()
 }
 
 void loop() {
- if (!client.connected()) { // Vérifie la connexion avec le serveur MQTT
-    reconnexion_mqtt();
-    } 
-
-  // Mesure citerne 1
+// Mesure citerne 1
 delay(1000);
 digitalWrite(trigger1,HIGH);
 delayMicroseconds(10);
@@ -143,13 +141,19 @@ Serial.print("Soit : ");
 Serial.print(pourcentage2);
 Serial.println("%");
 
-//Publication
-   Serial.println("Publication sur Gladys");
+//Publication SSI modification des mesures
+if ((pourcentage1!=pourcentage1old) | (pourcentage2!=pourcentage2old)) {
+  Serial.println("Les valeurs ont changé, publication sur Gladys");
+   if (!client.connected()) { // Vérifie la connexion avec le serveur MQTT
+    reconnexion_mqtt();
+    } 
    client.publish(citerneM_topic, String(pourcentage1).c_str(), true);   //Publie la température sur le topic temperature_topic
    client.publish(citerneL_topic, String(pourcentage2).c_str(), true);   //Publie la température sur le topic temperature_topic
-
+  pourcentage1old=pourcentage1; //stockage de la dernière valeur
+  pourcentage2old=pourcentage2; //stockage de la dernière valeur
+  client.disconnect();
+}
 //Veille
-client.disconnect();
-status=WiFi.disconnect();
+Serial.println("Prochaine mesure dans une heure...");
 delay(3600000);
 }
