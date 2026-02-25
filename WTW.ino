@@ -221,7 +221,7 @@ void prendre_mesures_et_publier() {
   // On ne publie que si ça change ou si c'est le premier run et si valeurs cohérentes
   
   if (firstRun || (pourcentage1 != pourcentage1old) || (pourcentage2 != pourcentage2old)){
-    if(pourcentage1<110 && pourcentage2<110) {
+    if(pourcentage1 < 120 && pourcentage2 < 120 && pourcentage1 > -20 && pourcentage2 > -20) {
     Serial.println("Changement détecté (ou démarrage), envoi vers Gladys...");
     
     if (!client.connected()) {
@@ -292,7 +292,7 @@ void loop() {
   // 2. Gestion du Timer pour les mesures
   unsigned long currentMillis = millis();
 
-  if (firstRun || (currentMillis - previousMillis >= interval) || pourcentage1>110 || pourcentage2>110) {
+if (firstRun || (currentMillis - previousMillis >= interval) || pourcentage1 > 120 || pourcentage2 > 120 || pourcentage1 < -20 || pourcentage2 < -20) { 
     // Sauvegarde du temps actuel
     previousMillis = currentMillis;
     
